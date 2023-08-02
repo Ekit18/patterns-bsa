@@ -5,6 +5,7 @@ import { Card } from '../data/models/card';
 import { SocketHandler } from './socket.handler';
 import { IReorderCards } from '../common/types/cardType';
 import { List } from '../data/models/list';
+import { errorData, logData, observer } from '../patterns/observer/observer';
 
 export class CardHandler extends SocketHandler {
   public handleConnection(socket: Socket): void {
@@ -15,6 +16,7 @@ export class CardHandler extends SocketHandler {
     socket.on(CardEvent.CHANGE_DESCRIPTION, this.changeDescription.bind(this));
     socket.on(CardEvent.DUPLICATED_CARD, this.duplicateCard.bind(this));
   }
+  // PATTERN:Observer 
 
   public createCard(listId: string, cardName: string): void {
     const newCard = new Card(cardName, '');
@@ -26,7 +28,9 @@ export class CardHandler extends SocketHandler {
 
     this.db.setData(updatedLists);
     this.updateLists();
+
   }
+   // PATTERN:Proxy
 
   private reorderCards({
     sourceIndex,
@@ -35,7 +39,7 @@ export class CardHandler extends SocketHandler {
     destinationListId,
   }: IReorderCards): void {
     const lists = this.db.getData();
-    const reordered = this.reorderService.reorderCards({
+    const reordered = this.reorderProxyService.reorderCards({
       lists,
       sourceIndex,
       destinationIndex,
@@ -45,44 +49,68 @@ export class CardHandler extends SocketHandler {
     this.db.setData(reordered);
     this.updateLists();
   }
+  // PATTERN:Observer 
 
   private deleteCard(listId: string, cardId: string) {
-    const lists = this.db.getData();
-    const updatedList = lists.find((list) => list.id === listId);
-    const updatedCards = updatedList.cards.filter((card) => card.id !== cardId);
-    updatedList.setCards(updatedCards);
-    const updatedLists = lists.map((list) => list.id === listId ? updatedList : list);
-    this.db.setData(updatedLists);
-    this.updateLists();
+    try {
+      const lists = this.db.getData();
+      const updatedList = lists.find((list) => list.id === listId);
+      const updatedCards = updatedList.cards.filter((card) => card.id !== cardId);
+      updatedList.setCards(updatedCards);
+      const updatedLists = lists.map((list) => list.id === listId ? updatedList : list);
+      this.db.setData(updatedLists);
+      this.updateLists();
+      const date = new Date().toISOString();
+      observer.log(logData, { action: 'Delete card', listId, cardId, date });
+    } catch (error) {
+      observer.log(errorData, error);
+    }
+
   }
+  // PATTERN:Observer 
 
   private changeTitle(title: string, listId: string, cardId: string) {
-    const lists = this.db.getData();
-    const updatedList: List = lists.find((list) => list.id === listId);
-    const updatedCard = updatedList.cards.find((card)=>card.id===cardId);
-    updatedCard.setName(title);
-    this.updateLists();
+    try {
+      const lists = this.db.getData();
+      const updatedList: List = lists.find((list) => list.id === listId);
+      const updatedCard = updatedList.cards.find((card) => card.id === cardId);
+      updatedCard.setName(title);
+      this.updateLists();
+      const date = new Date().toISOString();
+      observer.log(logData, { action: 'Change card title', listId, cardId, title, date });
+    } catch (error) {
+      observer.log(errorData, error);
+    }
+
   }
+  // PATTERN:Observer 
 
   private changeDescription(description: string, listId: string, cardId: string) {
     const lists = this.db.getData();
     const updatedList: List = lists.find((list) => list.id === listId);
-    const updatedCard = updatedList.cards.find((card)=>card.id===cardId);
+    const updatedCard = updatedList.cards.find((card) => card.id === cardId);
     updatedCard.setDescription(description);
     this.updateLists();
   }
-// PATTERN:Prototype
+  // PATTERN:Prototype, Observer 
 
   private duplicateCard(listId: string, cardId: string) {
-    const lists = this.db.getData();
-    const updatedList = lists.find((list) => list.id === listId);
-    const card = updatedList.cards.find((card) => card.id === cardId);
-    const duplicatedCard = card.produceCard();
-    const updatedLists = lists.map((list) =>
-      list.id === listId ? list.setCards(list.cards.concat(duplicatedCard)) : list,
-    );
+    try {
+      const lists = this.db.getData();
+      const updatedList = lists.find((list) => list.id === listId);
+      const card = updatedList.cards.find((card) => card.id === cardId);
+      const duplicatedCard = card.produceCard();
+      const updatedLists = lists.map((list) =>
+        list.id === listId ? list.setCards(list.cards.concat(duplicatedCard)) : list,
+      );
 
-    this.db.setData(updatedLists);
-    this.updateLists();
+      this.db.setData(updatedLists);
+      this.updateLists();
+      const date = new Date().toISOString();
+      observer.log(logData, { action: 'Duplicate card', listId, cardId, date });
+    } catch (error) {
+      observer.log(errorData, error);
+    }
+
   }
 }
