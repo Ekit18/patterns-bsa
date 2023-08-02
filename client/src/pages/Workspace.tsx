@@ -5,7 +5,6 @@ import type {
 } from '@hello-pangea/dnd';
 import { DragDropContext, Droppable } from '@hello-pangea/dnd';
 import React, { useContext, useEffect, useState } from 'react';
-
 import { CardEvent, ListEvent } from '../common/enums';
 import type { List } from '../common/types';
 import { Column } from '../components/column/column';
@@ -18,7 +17,6 @@ export const Workspace = () => {
   const [lists, setLists] = useState<List[]>([]);
 
   const socket = useContext(SocketContext);
-
   useEffect(() => {
     socket.emit(ListEvent.GET, (lists: List[]) => setLists(lists));
     socket.on(ListEvent.UPDATE, (lists: List[]) => setLists(lists));
@@ -63,6 +61,9 @@ export const Workspace = () => {
       destinationIndex: destination.index,
     });
   };
+  const createColumn = (name: string) => {
+    socket.emit(ListEvent.CREATE, name);
+  };
 
   return (
     <React.Fragment>
@@ -84,7 +85,7 @@ export const Workspace = () => {
                 />
               ))}
               {provided.placeholder}
-              <ColumnCreator onCreateList={() => {}} />
+              <ColumnCreator onCreateList={createColumn} />
             </Container>
           )}
         </Droppable>
