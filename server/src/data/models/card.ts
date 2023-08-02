@@ -15,6 +15,18 @@ class Card {
     this.createdAt = new Date();
     this.id = randomUUID();
   }
+
+  produceCard() {
+    return new Card(this.name, this.description);
+  }
+
+  setName(newName: string) {
+    this.name = newName;
+  }
+
+  setDescription(newDescription: string) {
+    this.description = newDescription;
+  }
 }
 
 export { Card };
