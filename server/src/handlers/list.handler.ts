@@ -3,12 +3,15 @@ import type { Socket } from 'socket.io';
 import { ListEvent } from '../common/enums';
 import { List } from '../data/models/list';
 import { SocketHandler } from './socket.handler';
+import { IRenameList } from '../common/types/listType';
 
 export class ListHandler extends SocketHandler {
   public handleConnection(socket: Socket): void {
     socket.on(ListEvent.CREATE, this.createList.bind(this));
     socket.on(ListEvent.GET, this.getLists.bind(this));
     socket.on(ListEvent.REORDER, this.reorderLists.bind(this));
+    socket.on(ListEvent.DELETE, this.deleteList.bind(this));
+    socket.on(ListEvent.RENAME, this.renameList.bind(this));
   }
 
   private getLists(callback: (cards: List[]) => void): void {
@@ -30,6 +33,18 @@ export class ListHandler extends SocketHandler {
     const lists = this.db.getData();
     const newList = new List(name);
     this.db.setData(lists.concat(newList));
+    this.updateLists();
+  }
+
+  private deleteList(listId: string): void {
+    this.db.deleteList(listId);
+    this.updateLists();
+  }
+
+  private renameList({ listId, newListName }: IRenameList): void {
+    const lists = this.db.getData();
+    const updatedList = lists.find((list)=>list.id===listId);
+    updatedList.setName(newListName);
     this.updateLists();
   }
 }

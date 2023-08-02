@@ -31,7 +31,7 @@ const CardsList = ({ listId, listType, style, cards }: Props) => {
           {...dropProvided.droppableProps}
         >
           <ScrollContainer>
-            <List cards={cards} dropProvided={dropProvided} />
+            <List cards={cards} dropProvided={dropProvided} listId={listId}/>
           </ScrollContainer>
         </ListWrapper>
       )}

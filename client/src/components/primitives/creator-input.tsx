@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 
-import { AddIcon } from '../icons/add-icon';
 import { AddButton } from './add-button';
-import { Button } from './styled/button';
 import { Input } from './styled/input';
 
 type Props = {
