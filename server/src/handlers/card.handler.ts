@@ -86,11 +86,18 @@ export class CardHandler extends SocketHandler {
   // PATTERN:Observer 
 
   private changeDescription(description: string, listId: string, cardId: string) {
-    const lists = this.db.getData();
-    const updatedList: List = lists.find((list) => list.id === listId);
-    const updatedCard = updatedList.cards.find((card) => card.id === cardId);
-    updatedCard.setDescription(description);
-    this.updateLists();
+    try {
+      const lists = this.db.getData();
+      const updatedList: List = lists.find((list) => list.id === listId);
+      const updatedCard = updatedList.cards.find((card) => card.id === cardId);
+      updatedCard.setDescription(description);
+      this.updateLists();
+      const date = new Date().toISOString();
+      observer.log(logData, { action: 'Change card description', listId, cardId, description, date });
+    } catch (error) {
+      observer.log(errorData, error);
+    }
+
   }
   // PATTERN:Prototype, Observer 
 
