@@ -6,6 +6,7 @@ import { Database } from './data/database';
 import { CardHandler } from './handlers/card.handler';
 import { ListHandler } from './handlers/list.handler';
 import { ReorderService } from './services/reorder.service';
+import { ReorderServiceProxy } from './patterns/proxy/redorderSerivceProxy';
 
 const PORT = 3001;
 
@@ -19,14 +20,15 @@ const io = new Server(httpServer, {
 
 const db = Database.Instance;
 const reorderService = new ReorderService();
+const reorderProxyService = new ReorderServiceProxy(reorderService);
 
 if (process.env.NODE_ENV !== 'production') {
   db.setData(lists);
 }
 
 const onConnection = (socket: Socket): void => {
-  new ListHandler(io, db, reorderService).handleConnection(socket);
-  new CardHandler(io, db, reorderService).handleConnection(socket);
+  new ListHandler(io, db, reorderService, reorderProxyService).handleConnection(socket);
+  new CardHandler(io, db, reorderService, reorderProxyService).handleConnection(socket);
 };
 
 io.on('connection', onConnection);

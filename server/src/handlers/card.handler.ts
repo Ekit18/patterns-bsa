@@ -16,27 +16,21 @@ export class CardHandler extends SocketHandler {
     socket.on(CardEvent.CHANGE_DESCRIPTION, this.changeDescription.bind(this));
     socket.on(CardEvent.DUPLICATED_CARD, this.duplicateCard.bind(this));
   }
-   // PATTERN:Observer 
+  // PATTERN:Observer 
 
   public createCard(listId: string, cardName: string): void {
-    try {
-      const newCard = new Card(cardName, '');
-      const lists = this.db.getData();
+    const newCard = new Card(cardName, '');
+    const lists = this.db.getData();
 
-      const updatedLists = lists.map((list) =>
-        list.id === listId ? list.setCards(list.cards.concat(newCard)) : list,
-      );
+    const updatedLists = lists.map((list) =>
+      list.id === listId ? list.setCards(list.cards.concat(newCard)) : list,
+    );
 
-      this.db.setData(updatedLists);
-      this.updateLists();
-      const date = new Date().toISOString();
-      observer.notifySubscribers(logData, { action: 'Create card', listId, cardName, date });
-    } catch (error) {
-      observer.notifySubscribers(errorData, error);
-    }
+    this.db.setData(updatedLists);
+    this.updateLists();
 
   }
-   // PATTERN:Observer 
+   // PATTERN:Proxy
 
   private reorderCards({
     sourceIndex,
@@ -44,30 +38,18 @@ export class CardHandler extends SocketHandler {
     sourceListId,
     destinationListId,
   }: IReorderCards): void {
-    try {
-      const lists = this.db.getData();
-      const reordered = this.reorderService.reorderCards({
-        lists,
-        sourceIndex,
-        destinationIndex,
-        sourceListId,
-        destinationListId,
-      });
-      this.db.setData(reordered);
-      this.updateLists();
-      const date = new Date().toISOString();
-      observer.notifySubscribers(logData, {
-        action: 'Reorder cards', sourceIndex,
-        destinationIndex,
-        sourceListId,
-        destinationListId,
-        date });
-    } catch (error) {
-      observer.notifySubscribers(errorData, error);
-    }
-
+    const lists = this.db.getData();
+    const reordered = this.reorderProxyService.reorderCards({
+      lists,
+      sourceIndex,
+      destinationIndex,
+      sourceListId,
+      destinationListId,
+    });
+    this.db.setData(reordered);
+    this.updateLists();
   }
-   // PATTERN:Observer 
+  // PATTERN:Observer 
 
   private deleteCard(listId: string, cardId: string) {
     try {
@@ -79,13 +61,13 @@ export class CardHandler extends SocketHandler {
       this.db.setData(updatedLists);
       this.updateLists();
       const date = new Date().toISOString();
-      observer.notifySubscribers(logData, { action: 'Delete card', listId, cardId, date });
+      observer.log(logData, { action: 'Delete card', listId, cardId, date });
     } catch (error) {
-      observer.notifySubscribers(errorData, error);
+      observer.log(errorData, error);
     }
 
   }
- // PATTERN:Observer 
+  // PATTERN:Observer 
 
   private changeTitle(title: string, listId: string, cardId: string) {
     try {
@@ -95,18 +77,18 @@ export class CardHandler extends SocketHandler {
       updatedCard.setName(title);
       this.updateLists();
       const date = new Date().toISOString();
-      observer.notifySubscribers(logData, { action: 'Change card title', listId, cardId, title, date });
+      observer.log(logData, { action: 'Change card title', listId, cardId, title, date });
     } catch (error) {
-      observer.notifySubscribers(errorData, error);
+      observer.log(errorData, error);
     }
 
   }
- // PATTERN:Observer 
+  // PATTERN:Observer 
 
   private changeDescription(description: string, listId: string, cardId: string) {
     const lists = this.db.getData();
     const updatedList: List = lists.find((list) => list.id === listId);
-    const updatedCard = updatedList.cards.find((card)=>card.id===cardId);
+    const updatedCard = updatedList.cards.find((card) => card.id === cardId);
     updatedCard.setDescription(description);
     this.updateLists();
   }
@@ -121,13 +103,13 @@ export class CardHandler extends SocketHandler {
       const updatedLists = lists.map((list) =>
         list.id === listId ? list.setCards(list.cards.concat(duplicatedCard)) : list,
       );
-  
+
       this.db.setData(updatedLists);
       this.updateLists();
       const date = new Date().toISOString();
-      observer.notifySubscribers(logData, { action: 'Duplicate card', listId, cardId, date });
+      observer.log(logData, { action: 'Duplicate card', listId, cardId, date });
     } catch (error) {
-      observer.notifySubscribers(errorData, error);
+      observer.log(errorData, error);
     }
 
   }

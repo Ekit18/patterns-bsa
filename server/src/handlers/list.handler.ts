@@ -18,23 +18,18 @@ export class ListHandler extends SocketHandler {
   private getLists(callback: (cards: List[]) => void): void {
     callback(this.db.getData());
   }
-   // PATTERN:Observer 
+
+   // PATTERN:Proxy
 
   private reorderLists(sourceIndex: number, destinationIndex: number): void {
-    try {
       const lists = this.db.getData();
-      const reorderedLists = this.reorderService.reorder(
+      const reorderedLists = this.reorderProxyService.reorder(
         lists,
         sourceIndex,
         destinationIndex,
       );
       this.db.setData(reorderedLists);
       this.updateLists();
-      const date = new Date().toISOString();
-      observer.notifySubscribers(logData, { action: 'Reorder lists', sourceIndex, destinationIndex, date });
-    } catch (error) {
-      observer.notifySubscribers(errorData, error);
-    }
   }
    // PATTERN:Observer 
 
@@ -45,9 +40,9 @@ export class ListHandler extends SocketHandler {
       this.db.setData(lists.concat(newList));
       this.updateLists();
       const date = new Date().toISOString();
-      observer.notifySubscribers(logData, { action: 'Create list', name, date });
+      observer.log(logData, { action: 'Create list', name, date });
     } catch (error) {
-      observer.notifySubscribers(errorData, error);
+      observer.log(errorData, error);
     }
   }
    // PATTERN:Observer 
@@ -57,9 +52,9 @@ export class ListHandler extends SocketHandler {
       this.db.deleteList(listId);
       this.updateLists();
       const date = new Date().toISOString();
-      observer.notifySubscribers(logData, { action: 'Delete list', listId, date });
+      observer.log(logData, { action: 'Delete list', listId, date });
     } catch (error) {
-      observer.notifySubscribers(errorData, error);
+      observer.log(errorData, error);
     }
 
   }
@@ -72,9 +67,9 @@ export class ListHandler extends SocketHandler {
       updatedList.setName(newListName);
       this.updateLists();
       const date = new Date().toISOString();
-      observer.notifySubscribers(logData, { action: 'Rename list', listId, newListName, date });
+      observer.log(logData, { action: 'Rename list', listId, newListName, date });
     } catch (error) {
-      observer.notifySubscribers(errorData, error);
+      observer.log(errorData, error);
     }
   }
 }
