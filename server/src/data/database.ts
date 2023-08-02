@@ -24,6 +24,10 @@ class Database {
   public getData(): List[] {
     return this.data;
   }
+
+  public deleteList(listId:string){
+    this.data = this.data.filter((list) => list.id !== listId);
+  }
 }
 
 export { Database };
