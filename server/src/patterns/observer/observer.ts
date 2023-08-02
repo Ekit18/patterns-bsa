@@ -3,7 +3,7 @@
 import { ISubscriber } from '../../common/types/observerType';
 import * as  fs from 'fs';
 
-class Publisher {
+export class Publisher {
     private observers: ISubscriber[] = [];
 
     subscribe(observer: ISubscriber): void {
@@ -14,7 +14,7 @@ class Publisher {
         this.observers = this.observers.filter((subscriber) => subscriber !== deletedSubscriber);
     }
 
-    notifySubscribers(observer: ISubscriber, data: any): void {
+    log(observer: ISubscriber, data: any): void {
         observer.notify(data);
     }
 }
