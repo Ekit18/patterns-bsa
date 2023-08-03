@@ -1,3 +1,3 @@
-const SOCKET_URL = 'https://piquant-ocean-production.up.railway.app';
+const SOCKET_URL = 'https://fluttering-plastic-production.up.railway.app';
 
 export { SOCKET_URL };
