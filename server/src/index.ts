@@ -14,7 +14,12 @@ import { MementoHandler } from './handlers/memento.handler';
 
 const PORT = 3001;
 
-const httpServer = createServer();
+const httpServer = createServer((req, res) => {
+  // Set the response content type to text/plain
+  res.setHeader('Content-Type', 'text/plain');
+  // Write "Hello, World!" to the response
+  res.end('Hello, World!');
+});
 const io = new Server(httpServer, {
   cors: {
     origin: '*',
