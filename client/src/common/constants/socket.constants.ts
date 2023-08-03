@@ -1,3 +1,3 @@
-const SOCKET_URL = 'http://localhost:3001';
+const SOCKET_URL = 'https://patterns-bsa-server.vercel.app';
 
 export { SOCKET_URL };
