@@ -23,6 +23,15 @@ class List {
   setName(newName: string) {
     this.name = newName;
   }
+
+  deepCopy() {
+    const cards = this.cards.map((card) => card.clone());
+
+    return Object.assign(Object.create(Object.getPrototypeOf(this)), {
+      ...this,
+      cards,
+    });
+  }
 }
 
 export { List };

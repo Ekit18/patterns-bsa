@@ -27,6 +27,10 @@ class Card {
   setDescription(newDescription: string) {
     this.description = newDescription;
   }
+
+  clone() {
+    return Object.assign(Object.create(Object.getPrototypeOf(this)), this);
+  }
 }
 
 export { Card };
