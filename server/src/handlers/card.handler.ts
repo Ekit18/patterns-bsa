@@ -16,21 +16,28 @@ export class CardHandler extends SocketHandler {
     socket.on(CardEvent.CHANGE_DESCRIPTION, this.changeDescription.bind(this));
     socket.on(CardEvent.DUPLICATED_CARD, this.duplicateCard.bind(this));
   }
-  // PATTERN:Observer 
+  // PATTERN:Observer, Memento mori
 
   public createCard(listId: string, cardName: string): void {
-    const newCard = new Card(cardName, '');
-    const lists = this.db.getData();
+    try {
+      this.caretaker.backup();
+      const lists = this.db.getData();
+      const newCard = new Card(cardName, '');
 
-    const updatedLists = lists.map((list) =>
-      list.id === listId ? list.setCards(list.cards.concat(newCard)) : list,
-    );
+      const updatedLists = lists.map((list) =>
+        list.id === listId ? list.setCards(list.cards.concat(newCard)) : list,
+      );
 
-    this.db.setData(updatedLists);
-    this.updateLists();
-
+      this.db.setData(updatedLists);
+      this.originator.preserveData(this.db.getData());
+      this.updateLists();
+      const date = new Date().toISOString();
+      observer.log(logData, { action: 'Delete card', listId, cardName, date });
+    } catch (error) {
+      observer.log(errorData, error);
+    }
   }
-   // PATTERN:Proxy
+  // PATTERN:Proxy, Memento mori
 
   private reorderCards({
     sourceIndex,
@@ -38,6 +45,7 @@ export class CardHandler extends SocketHandler {
     sourceListId,
     destinationListId,
   }: IReorderCards): void {
+    this.caretaker.backup();
     const lists = this.db.getData();
     const reordered = this.reorderProxyService.reorderCards({
       lists,
@@ -46,19 +54,23 @@ export class CardHandler extends SocketHandler {
       sourceListId,
       destinationListId,
     });
+
     this.db.setData(reordered);
+    this.originator.preserveData(this.db.getData());
     this.updateLists();
   }
-  // PATTERN:Observer 
+  // PATTERN:Observer, Memento mori
 
   private deleteCard(listId: string, cardId: string) {
     try {
+      this.caretaker.backup();
       const lists = this.db.getData();
       const updatedList = lists.find((list) => list.id === listId);
       const updatedCards = updatedList.cards.filter((card) => card.id !== cardId);
       updatedList.setCards(updatedCards);
       const updatedLists = lists.map((list) => list.id === listId ? updatedList : list);
       this.db.setData(updatedLists);
+      this.originator.preserveData(this.db.getData());
       this.updateLists();
       const date = new Date().toISOString();
       observer.log(logData, { action: 'Delete card', listId, cardId, date });
@@ -67,15 +79,17 @@ export class CardHandler extends SocketHandler {
     }
 
   }
-  // PATTERN:Observer 
+  // PATTERN:Observer, Memento mori 
 
   private changeTitle(title: string, listId: string, cardId: string) {
     try {
+      this.caretaker.backup();
       const lists = this.db.getData();
       const updatedList: List = lists.find((list) => list.id === listId);
       const updatedCard = updatedList.cards.find((card) => card.id === cardId);
       updatedCard.setName(title);
       this.updateLists();
+      this.originator.preserveData(this.db.getData());
       const date = new Date().toISOString();
       observer.log(logData, { action: 'Change card title', listId, cardId, title, date });
     } catch (error) {
@@ -83,15 +97,17 @@ export class CardHandler extends SocketHandler {
     }
 
   }
-  // PATTERN:Observer 
+  // PATTERN:Observer, Memento mori 
 
   private changeDescription(description: string, listId: string, cardId: string) {
     try {
+      this.caretaker.backup();
       const lists = this.db.getData();
       const updatedList: List = lists.find((list) => list.id === listId);
       const updatedCard = updatedList.cards.find((card) => card.id === cardId);
       updatedCard.setDescription(description);
       this.updateLists();
+      this.originator.preserveData(this.db.getData());
       const date = new Date().toISOString();
       observer.log(logData, { action: 'Change card description', listId, cardId, description, date });
     } catch (error) {
@@ -99,10 +115,11 @@ export class CardHandler extends SocketHandler {
     }
 
   }
-  // PATTERN:Prototype, Observer 
+  // PATTERN:Prototype, Observer, Memento mori
 
   private duplicateCard(listId: string, cardId: string) {
     try {
+      this.caretaker.backup();
       const lists = this.db.getData();
       const updatedList = lists.find((list) => list.id === listId);
       const card = updatedList.cards.find((card) => card.id === cardId);
@@ -112,12 +129,12 @@ export class CardHandler extends SocketHandler {
       );
 
       this.db.setData(updatedLists);
+      this.originator.preserveData(this.db.getData());
       this.updateLists();
       const date = new Date().toISOString();
       observer.log(logData, { action: 'Duplicate card', listId, cardId, date });
     } catch (error) {
       observer.log(errorData, error);
     }
-
   }
 }
