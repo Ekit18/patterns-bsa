@@ -12,7 +12,7 @@ import { Caretaker } from './patterns/memento/caretaker';
 import { ListEvent } from './common/enums';
 import { MementoHandler } from './handlers/memento.handler';
 
-const PORT = process.env.PORT || 3001;
+const PORT = Number(process.env.PORT) || 3001;
 
 const httpServer = createServer((req, res) => {
   // Set the response content type to text/plain
