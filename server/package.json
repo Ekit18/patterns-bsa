@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "description": "Starter for Patterns Practises and Principles homework. Binary Studio Academy",
   "scripts": {
-    "tsc": "tsc",
-    "start": "node build/index.js"
+    "build": "rimraf ./build && tsc",
+    "start": "npm run build && node build/index.js"
   },
   "author": "Vitalii Yarmus",
   "license": "MIT",
@@ -15,6 +15,7 @@
     "@types/node": "18.13.0",
     "@types/socket.io": "3.0.2",
     "nodemon": "2.0.20",
+    "rimraf": "^5.0.1",
     "ts-node": "10.9.1"
   }
 }
