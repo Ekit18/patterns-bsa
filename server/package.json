@@ -4,7 +4,7 @@
   "description": "Starter for Patterns Practises and Principles homework. Binary Studio Academy",
   "scripts": {
     "start": "npm run build && node build/index.js",
-    "build": "rimraf ./build && tsc"
+    "build": "tsc && node build"
   },
   "author": "Vitalii Yarmus",
   "license": "MIT",
