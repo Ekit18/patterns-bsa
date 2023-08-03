@@ -12,7 +12,7 @@ import { Caretaker } from './patterns/memento/caretaker';
 import { ListEvent } from './common/enums';
 import { MementoHandler } from './handlers/memento.handler';
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
 const httpServer = createServer((req, res) => {
   // Set the response content type to text/plain
@@ -45,6 +45,6 @@ const onConnection = (socket: Socket): void => {
 
 io.on('connection', onConnection);
 
-httpServer.listen(PORT, () => console.log('listening on port: ' + PORT));
+httpServer.listen(PORT,'0.0.0.0', () => console.log('listening on port: ' + PORT));
 
 export { httpServer };
