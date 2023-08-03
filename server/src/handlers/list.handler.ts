@@ -19,38 +19,44 @@ export class ListHandler extends SocketHandler {
     callback(this.db.getData());
   }
 
-   // PATTERN:Proxy
+  // PATTERN:Proxy, Memento mori
 
   private reorderLists(sourceIndex: number, destinationIndex: number): void {
-      const lists = this.db.getData();
-      const reorderedLists = this.reorderProxyService.reorder(
-        lists,
-        sourceIndex,
-        destinationIndex,
-      );
-      this.db.setData(reorderedLists);
-      this.updateLists();
+    this.caretaker.backup();
+    const lists = this.db.getData();
+    const reorderedLists = this.reorderProxyService.reorder(
+      lists,
+      sourceIndex,
+      destinationIndex,
+    );
+    this.db.setData(reorderedLists);
+    this.originator.preserveData(this.db.getData());
+    this.updateLists();
   }
-   // PATTERN:Observer 
+  // PATTERN:Observer, Memento mori
 
   private createList(name: string): void {
     try {
+      this.caretaker.backup();
       const lists = this.db.getData();
       const newList = new List(name);
       this.db.setData(lists.concat(newList));
       this.updateLists();
+      this.originator.preserveData(this.db.getData());
       const date = new Date().toISOString();
       observer.log(logData, { action: 'Create list', name, date });
     } catch (error) {
       observer.log(errorData, error);
     }
   }
-   // PATTERN:Observer 
+  // PATTERN:Observer, Memento mori
 
   private deleteList(listId: string): void {
     try {
+      this.caretaker.backup();
       this.db.deleteList(listId);
       this.updateLists();
+      this.originator.preserveData(this.db.getData());
       const date = new Date().toISOString();
       observer.log(logData, { action: 'Delete list', listId, date });
     } catch (error) {
@@ -58,14 +64,16 @@ export class ListHandler extends SocketHandler {
     }
 
   }
-   // PATTERN:Observer 
+  // PATTERN:Observer, Memento mori
 
   private renameList({ listId, newListName }: IRenameList): void {
     try {
+      this.caretaker.backup();
       const lists = this.db.getData();
       const updatedList = lists.find((list) => list.id === listId);
       updatedList.setName(newListName);
       this.updateLists();
+      this.originator.preserveData(this.db.getData());
       const date = new Date().toISOString();
       observer.log(logData, { action: 'Rename list', listId, newListName, date });
     } catch (error) {

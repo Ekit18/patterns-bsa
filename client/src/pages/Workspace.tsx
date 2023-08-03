@@ -12,6 +12,8 @@ import { ColumnCreator } from '../components/column-creator/column-creator';
 import { SocketContext } from '../context/socket';
 import { Container } from './styled/container';
 import { reorderCards, reorderLists } from '../services/reorder.service';
+import { MementoEvent } from '../common/enums/memento.enums';
+import useMemento from '../hooks/useMemento';
 
 export const Workspace = () => {
   const [lists, setLists] = useState<List[]>([]);
@@ -26,6 +28,16 @@ export const Workspace = () => {
     };
   }, []);
 
+  const handleUndo = () => {
+    socket.emit(MementoEvent.UNDO);
+  };
+
+  const handleRedo = () => {
+    socket.emit(MementoEvent.REDO);
+  };
+
+  useMemento({ handleUndo, handleRedo });
+  
   const onDragEnd = (result: DropResult) => {
     if (!result.destination) {
       return;
