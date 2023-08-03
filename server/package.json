@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "description": "Starter for Patterns Practises and Principles homework. Binary Studio Academy",
   "scripts": {
-    "start": "npm run build && node build/index.js",
-    "build": "tsc && node build"
+    "tsc": "tsc",
+    "start": "node build/index.js"
   },
   "author": "Vitalii Yarmus",
   "license": "MIT",
